@@ -1,0 +1,12 @@
+<ul class="tablon">
+  @for (nota of notas(); track nota.id) {
+    <li class="tablon__nota" [style.--tilt]="inclinacion(nota.id)" [style.--pin-x]="desplazamientoPin(nota.id)">
+      <span class="tablon__pin" [style.background]="nota.color"></span>
+      <p class="tablon__meta">{{ nota.comunidad }}</p>
+      <h2>{{ nota.titulo }}</h2>
+      <p>{{ nota.detalle }}</p>
+    </li>
+  } @empty {
+    <li class="tablon__nota tablon__nota--vacia"><h2>Tablón vacío</h2><p>Cuando haya sesiones, se colgarán aquí.</p></li>
+  }
+</ul>

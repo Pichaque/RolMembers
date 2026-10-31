@@ -1,0 +1,34 @@
+<ion-app>
+  @if (session.user()) {
+    <ion-menu
+      contentId="main-content"
+      menuId="app-menu"
+      (ionDidOpen)="onMenuOpen(true)"
+      (ionDidClose)="onMenuOpen(false)"
+    >
+      <ion-content>
+        <nav class="app-menu" aria-label="Secciones">
+          @for (link of links(); track link.path) {
+            <a [routerLink]="link.path" routerLinkActive="app-menu__link--active" class="app-menu__link">{{ link.label }}</a>
+          }
+        </nav>
+      </ion-content>
+    </ion-menu>
+  }
+  <div class="ion-page" id="main-content">
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <app-header />
+    <div id="contenido" tabindex="-1">
+      <ion-router-outlet />
+    </div>
+    @if (session.user()) {
+      <ion-tab-bar class="app-tabs" slot="bottom">
+        @for (link of links(); track link.path) {
+          <ion-tab-button [routerLink]="link.path" routerLinkActive="app-tabs__button--active">
+            <ion-label>{{ link.label }}</ion-label>
+          </ion-tab-button>
+        }
+      </ion-tab-bar>
+    }
+  </div>
+</ion-app>

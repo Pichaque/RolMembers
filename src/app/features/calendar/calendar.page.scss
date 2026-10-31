@@ -1,0 +1,31 @@
+.app-page { padding-top: 56px; padding-bottom: 80px; }
+.calendar-page h1 { margin: 12px 0 8px; font: 500 clamp(2.4rem, 5vw, 3.6rem)/1.1 Georgia, serif; }
+.page-intro { color: var(--color-muted); line-height: 1.7; }
+.empty-state p, .create-event > p, .event-item p { color: var(--color-on-panel-muted); line-height: 1.7; }
+.view-toggle { display: flex; gap: 8px; margin: 18px 0 8px; }
+.view-toggle button, .month-nav button { padding: 8px 14px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-on-panel); background: var(--color-panel); cursor: pointer; transition: transform .16s ease; }
+.view-toggle button:hover, .month-nav button:hover { transform: translateY(-2px); }
+.view-toggle button.active { border-color: var(--color-copper); color: var(--color-copper); }
+.month-board { margin: 12px 0 24px; }
+.month-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.month-nav h2 { margin: 0; font: 500 1.6rem Georgia, serif; text-transform: capitalize; }
+.weekday-row, .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.weekday-row { margin: 12px 0 6px; color: var(--color-muted); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+.export-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 24px; }
+.surface { padding: 22px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--color-panel); }
+.event-list { display: grid; gap: 14px; margin: 0 0 24px; padding: 0; list-style: none; }
+.event-item { display: flex; align-items: flex-start; gap: 16px; }
+.event-item h2 { margin: 0 0 6px; font: 500 1.35rem Georgia, serif; }
+.event-community { margin: 0 0 4px; color: var(--color-copper); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.event-swatch { flex: 0 0 auto; width: 14px; height: 14px; margin-top: 6px; border-radius: 50%; }
+.attendance { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.attendance button { padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-on-panel); background: transparent; cursor: pointer; }
+.attendance button.active { border-color: var(--color-copper); color: var(--color-copper); }
+.create-event { display: grid; gap: 8px; max-width: 640px; }
+.create-event h2 { margin: 0; font: 500 1.4rem Georgia, serif; }
+.create-event input, .create-event textarea, .create-event select { width: 100%; padding: 12px 14px; border: 1px solid var(--color-border); border-radius: 10px; color: var(--color-on-panel); background: var(--field-bg); }
+.muted-status { color: var(--color-muted); }
+@media print {
+  .no-print { display: none !important; }
+  .surface { break-inside: avoid; }
+}

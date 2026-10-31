@@ -1,0 +1,83 @@
+@if (canEdit()) {
+  <section class="detail-card">
+    <h2>Datos de la mesa</h2>
+    <form [formGroup]="details" (ngSubmit)="saveDetails()" aria-live="polite">
+    <label for="community-name">Nombre</label>
+    <input id="community-name" type="text" maxlength="50" formControlName="name" aria-describedby="community-name-error" [attr.aria-invalid]="details.controls.name.invalid && details.controls.name.touched" />
+    @if (details.controls.name.pending) { <p class="inline-note">Comprobando…</p> }
+    @if (details.controls.name.hasError('slugTaken')) { <p id="community-name-error" class="inline-error">Ese identificador ya existe.</p> }
+    <label for="community-description">Descripción</label>
+    <textarea id="community-description" rows="3" maxlength="500" formControlName="description"></textarea>
+    <ion-button class="button-primary" type="submit" [disabled]="saving() || details.pending || details.invalid">Guardar datos</ion-button>
+    </form>
+  </section>
+  <section class="detail-card theme-editor">
+    <h2>Personalizar tema</h2>
+    <div class="palette-row">
+      @for (preset of presets; track preset.preset) {
+        <button type="button" class="palette-chip" (click)="applyPreset(preset)">{{ preset.preset }}</button>
+      }
+    </div>
+    <form [formGroup]="themeForm" (ngSubmit)="saveTheme()">
+    <div class="theme-fields">
+      <label>Principal<input type="color" formControlName="primary" /></label>
+      <label>Secundario<input type="color" formControlName="secondary" /></label>
+      <label>Acento<input type="color" formControlName="accent" /></label>
+      <label>Fondo de la página<input type="color" formControlName="background" /></label>
+      <label>Tinte de las tarjetas claras<input type="color" formControlName="surface" /></label>
+    </div>
+    <label for="theme-style">Estilo del fondo</label>
+    <select id="theme-style" formControlName="backgroundStyle">
+      <option value="tint">Tinte</option>
+      <option value="solid">Sólido</option>
+      <option value="gradient">Degradado</option>
+    </select>
+    <div class="theme-preview" [ngStyle]="previewStyles().page" aria-hidden="true">
+      <article class="theme-preview__card" [ngStyle]="previewStyles().card">
+        <p class="theme-preview__title" [ngStyle]="previewStyles().title">Título de ejemplo</p>
+        <p class="theme-preview__line" [ngStyle]="previewStyles().line">Texto de la comunidad sobre el fondo.</p>
+        <span class="theme-preview__button" [ngStyle]="previewStyles().button">Acción</span>
+      </article>
+    </div>
+    <ion-button class="button-primary" type="submit" [disabled]="saving()">Guardar tema</ion-button>
+    </form>
+  </section>
+  <section class="detail-card" *appPuede="'publicar-anuncio'">
+    <h2>Anuncio</h2>
+    <form [formGroup]="announcement" (ngSubmit)="publishAnnouncement()">
+      <label for="announcement-title">Título</label>
+      <input id="announcement-title" type="text" formControlName="title" />
+      <label for="announcement-content">Contenido</label>
+      <textarea id="announcement-content" rows="3" formControlName="content"></textarea>
+      <ion-button class="button-primary" type="submit" [disabled]="announcement.invalid">Publicar anuncio</ion-button>
+    </form>
+    <ul>
+      @for (item of announcements(); track item.id) {
+        <li>
+          <strong>{{ item.title }}</strong>
+          <p>{{ item.content }}</p>
+          <button type="button" (click)="removeAnnouncement(item.id)">Borrar anuncio</button>
+        </li>
+      } @empty {
+        <li>Todavía no hay anuncios.</li>
+      }
+    </ul>
+  </section>
+  <section class="detail-card" *appPuede="'regenerar-invitacion'">
+    <h2>Invitación</h2>
+    <p>Un código por comunidad. Quien lo use entra como roleador.</p>
+    <p><strong>{{ inviteCode() || 'Todavía no hay código. Genera uno.' }}</strong></p>
+    <ion-button class="button-primary" (click)="regenerate()" [disabled]="saving()">Generar código nuevo</ion-button>
+  </section>
+  <app-community-races [server]="server()" />
+  @if (canDelete()) {
+  <section class="detail-card">
+    <h2>Eliminar comunidad</h2>
+    <label for="confirm-name">Escribe «{{ server().name }}» para confirmar</label>
+    <input id="confirm-name" type="text" [value]="confirmName()" (input)="setText('confirm', $event)" />
+    <ion-button fill="clear" class="button-quiet" (click)="removeCommunity()" [disabled]="saving()">Eliminar comunidad</ion-button>
+  </section>
+  }
+}
+@if (message()) { <p class="inline-success" role="status">{{ message() }}</p> }
+@if (error()) { <p class="inline-error" role="alert">{{ error() }}</p> }

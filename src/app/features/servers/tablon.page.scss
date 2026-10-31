@@ -1,0 +1,31 @@
+.tablon__intro {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem 1.75rem;
+}
+
+.tablon__intro h1,
+.tablon__intro .page-intro {
+  margin: 0;
+}
+
+.tablon__intro .page-intro {
+  max-width: 42rem;
+}
+
+.tablon__intro ion-button {
+  width: fit-content;
+  justify-self: start;
+  margin: 0;
+}
+
+.tablon__bloque {
+  margin-bottom: 2rem;
+}
+
+.tablon__bloque h2 {
+  margin: 0 0 0.85rem;
+  font: 500 1.6rem Georgia, serif;
+  color: var(--color-text);
+}

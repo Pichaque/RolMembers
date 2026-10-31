@@ -1,0 +1,25 @@
+<section class="calendario-mes" aria-label="Calendario mensual">
+  <div class="calendario-mes__nav">
+    <button type="button" (click)="moverMes(-1)" aria-label="Mes anterior">‹</button>
+    <h2>{{ etiqueta() }}</h2>
+    <button type="button" (click)="moverMes(1)" aria-label="Mes siguiente">›</button>
+  </div>
+  <div class="calendario-mes__semana"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
+  <div class="calendario-mes__rejilla">
+    @for (dia of celdas(); track $index) {
+      @if (dia) {
+        <button type="button" class="calendario-mes__dia" [id]="idDia(dia)" [attr.aria-label]="etiquetaDia(dia)" (click)="diaSeleccionado.emit(fecha(dia))" (keydown)="tecla($event, dia)">
+          <span>{{ dia }}</span>
+          @for (evento of eventosDelDia(dia); track evento.id) {
+            <em (click)="$event.stopPropagation(); eventoSeleccionado.emit(evento.id)">
+              <i [style.background]="evento.color" aria-hidden="true"></i>
+              {{ evento.comunidad }}: {{ evento.titulo }}
+            </em>
+          }
+        </button>
+      } @else {
+        <span class="calendario-mes__vacio"></span>
+      }
+    }
+  </div>
+</section>

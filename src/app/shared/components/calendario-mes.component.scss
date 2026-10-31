@@ -1,0 +1,36 @@
+.calendario-mes__nav, .calendario-mes__semana, .calendario-mes__rejilla { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .4rem; }
+.calendario-mes__nav { grid-template-columns: auto 1fr auto; align-items: center; margin-bottom: .75rem; }
+.calendario-mes__dia, .calendario-mes__nav button { min-height: 2.75rem; border: 1px solid var(--color-border); border-radius: .6rem; background: var(--color-panel); color: var(--color-on-panel); text-align: left; }
+.calendario-mes__dia { min-height: 5.5rem; padding: .4rem; }
+.calendario-mes__dia:focus-visible { outline: 2px solid var(--color-copper); outline-offset: 2px; }
+.calendario-mes__dia:not(.calendario-mes__dia--vacio) {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.calendario-mes__dia:not(.calendario-mes__dia--vacio):hover {
+  transform: translateY(-0.375rem);
+  box-shadow: 0 0.875rem 1.5rem rgba(0, 0, 0, 0.22);
+}
+.calendario-mes__dia em {
+  display: block;
+  margin-top: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  color: var(--color-on-panel);
+  background: color-mix(in srgb, var(--community-primary) 28%, transparent);
+  font-style: normal;
+  font-size: 0.68rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.calendario-mes__dia i { display: inline-block; width: 0.6rem; height: 0.6rem; margin-right: 0.25rem; border-radius: 50%; vertical-align: middle; }
+.calendario-mes__vacio { min-height: 2.75rem; }
+@media (prefers-reduced-motion: reduce) {
+  .calendario-mes__dia:not(.calendario-mes__dia--vacio),
+  .calendario-mes__dia:not(.calendario-mes__dia--vacio):hover {
+    transform: none;
+    transition: none;
+    box-shadow: none;
+  }
+}

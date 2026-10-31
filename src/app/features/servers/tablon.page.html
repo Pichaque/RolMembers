@@ -1,0 +1,27 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page tablon">
+    <section class="surface tablon__intro">
+      <p class="eyebrow">TABLÓN EN TIEMPO REAL</p>
+      <h1>{{ serverName() || 'Tablón' }}</h1>
+      <p class="page-intro">Las noticias aparecen solas cuando alguien de la comunidad publica, crea un personaje, una sesión o confirma asistencia. No hace falta recargar.</p>
+      <ion-button [routerLink]="['/servers', serverId()]" fill="clear" class="button-quiet">Volver a la comunidad</ion-button>
+    </section>
+
+    @if (loading()) {
+      <p class="muted-status">Abriendo el tablón…</p>
+    } @else if (error()) {
+      <p class="inline-error" role="alert">{{ error() }}</p>
+    } @else {
+      <section class="tablon__bloque" aria-labelledby="anuncios-titulo">
+        <h2 id="anuncios-titulo">Anuncios</h2>
+        <app-tablon-eventos [notas]="notasAnuncios()" />
+      </section>
+      <section class="tablon__bloque" aria-live="polite" aria-labelledby="noticias-titulo">
+        <h2 id="noticias-titulo">Noticias</h2>
+        <app-tablon-eventos [notas]="notasFeed()" />
+      </section>
+      <app-tirador-dados [historial]="historial()" (tirada)="guardarTirada($event)" />
+      @if (diceError()) { <p class="inline-error" role="alert">{{ diceError() }}</p> }
+    }
+  </main>
+</ion-content>

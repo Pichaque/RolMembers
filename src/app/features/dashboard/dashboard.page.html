@@ -1,0 +1,100 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page">
+    <section class="welcome-block">
+      <div>
+        <p class="eyebrow"><ion-icon name="sparkles-outline" /> TU ESPACIO DE JUEGO</p>
+        <h1>Bienvenido, <em>{{ displayName }}</em></h1>
+        <p>Tu próxima historia empieza cuando se reúne el grupo.</p>
+      </div>
+      <div class="welcome-actions">
+        <ion-button routerLink="/servers" class="button-primary"><ion-icon slot="start" name="people-outline" /> Ver comunidades</ion-button>
+        <ion-button routerLink="/calendar" fill="outline" class="button-outline"><ion-icon slot="start" name="calendar-outline" /> Calendario</ion-button>
+      </div>
+    </section>
+
+    <section class="dashboard-kpis">
+      <app-widget-estadistica titulo="Mis comunidades" [valor]="communities().length" [cargando]="communitiesLoading()" icono="people-outline" variacion="" />
+      <app-widget-estadistica titulo="Próximas sesiones" [valor]="upcoming().length" [cargando]="agendaLoading()" icono="calendar-outline" variacion="" />
+      @if (muestraPendientes()) {
+        <app-widget-estadistica titulo="Personajes pendientes" [valor]="pendingCharacters()" [cargando]="agendaLoading()" icono="hourglass-outline" variacion="" />
+      }
+    </section>
+    <section class="dashboard-grid">
+      <article class="surface profile-summary">
+        <div class="section-title"><span class="feature-icon"><ion-icon name="shield-checkmark-outline" /></span><div><p class="eyebrow">TU CUENTA</p><h2>Perfil de jugador</h2></div></div>
+        <p class="account-email">{{ auth.user()?.email }}</p>
+        @if (profileLoading()) {
+          <p class="muted-status">Consultando perfil…</p>
+        } @else if (profileError()) {
+          <p class="inline-error" role="alert">{{ profileError() }}</p>
+        } @else if (profile()) {
+          <p class="role-badge">Rol global: <strong>{{ profile()?.global_role === 'admin' ? 'Administrador' : 'Usuario' }}</strong></p>
+        } @else {
+          <p class="muted-status">No se encontró un perfil asociado a esta cuenta. El trigger de registro debería crearlo automáticamente.</p>
+        }
+        <a class="text-link" routerLink="/profile">Ver los datos de mi cuenta <ion-icon name="chevron-forward-outline" /></a>
+      </article>
+
+      <article class="surface community-summary">
+        <div class="section-title"><span class="feature-icon"><ion-icon name="people-outline" /></span><div><p class="eyebrow">TUS PARTIDAS</p><h2>Comunidades</h2></div></div>
+
+        @if (communitiesLoading()) {
+          <p class="muted-status">Consultando comunidades…</p>
+        } @else if (communitiesError()) {
+          <p class="inline-error" role="alert">{{ communitiesError() }}</p>
+        } @else if (communities().length) {
+          <ul class="community-list">
+            @for (community of communities(); track community.id) {
+              <li class="community-item">
+                <span class="community-swatch" [style.background]="community.theme.primary || '#b97650'" aria-hidden="true"></span>
+                <div>
+                  <strong>{{ community.name }}</strong>
+                  <p>{{ community.description || 'Sin descripción disponible.' }}</p>
+                </div>
+                <div class="community-meta">
+                  <span>{{ roleLabel(community.userRole) }}</span>
+                </div>
+                <ion-button routerLink="/servers/{{ community.id }}" fill="clear" class="button-quiet">Abrir</ion-button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="empty-state">
+            <span class="empty-symbol"><ion-icon name="compass-outline" /></span>
+            <h3>Tu mesa te está esperando</h3>
+            <p>No perteneces a ninguna comunidad todavía. Cuando te unas a una, aparecerá aquí con tu rol.</p>
+            <ion-button routerLink="/servers" fill="outline" class="button-outline">Ver sección de comunidades</ion-button>
+          </div>
+        }
+
+        <div class="section-title"><span class="feature-icon"><ion-icon name="calendar-outline" /></span><div><p class="eyebrow">AGENDA</p><h2>Próximas sesiones</h2></div></div>
+        @if (agendaLoading()) {
+          <p class="muted-status">Consultando sesiones…</p>
+        } @else if (upcomingError()) {
+          <p class="inline-error" role="alert">{{ upcomingError() }}</p>
+        } @else if (upcoming().length) {
+          <ul>
+            @for (event of upcoming(); track event.id) {
+              <li>{{ event.serverName }} — {{ event.title }} ({{ event.when }})</li>
+            }
+          </ul>
+        } @else {
+          <p class="inline-note">No tienes sesiones próximas. Cuando un narrador publique una, aparecerá aquí.</p>
+        }
+
+        <div class="invite-box">
+          <p class="eyebrow">¿TIENES UNA INVITACIÓN?</p>
+          <label for="invite-code">Código de invitación</label>
+          <input id="invite-code" [formControl]="invite" type="text" placeholder="Introduce tu código" [disabled]="inviteLoading()" aria-describedby="dashboard-invite" [attr.aria-invalid]="invite.invalid && invite.touched" />
+          @if (invite.pending) { <p class="inline-note"><ion-spinner name="crescent" /> Comprobando…</p> }
+          <ion-button expand="block" class="button-primary" (click)="joinWithInviteCode()" [disabled]="inviteLoading() || invite.pending || invite.invalid">
+            {{ inviteLoading() ? 'Comprobando código…' : 'Unirme a una comunidad' }}
+          </ion-button>
+          @if (inviteStatus()) {
+            <p [class]="inviteIsError() ? 'inline-error' : 'inline-note'" [attr.role]="inviteIsError() ? 'alert' : 'status'">{{ inviteStatus() }}</p>
+          }
+        </div>
+      </article>
+    </section>
+  </main>
+</ion-content>

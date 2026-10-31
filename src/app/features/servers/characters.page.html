@@ -1,0 +1,112 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page characters">
+    <section class="surface characters__intro">
+      <p class="eyebrow">PERSONAJES</p>
+      <h1>{{ serverName() || 'Personajes' }}</h1>
+      <p class="page-intro">Al crearlo queda pendiente. Solo el narrador o un administrador lo aprueba. Cada roleador edita y borra los suyos.</p>
+      <ion-button [routerLink]="['/servers', serverId()]" fill="clear" class="button-quiet">Volver a la comunidad</ion-button>
+      <div class="characters__export">
+        <app-exportar-informe titulo="Personajes" [columnas]="['Nombre', 'Estado', 'Profesión', 'Rasgos']" [filas]="filasInforme()" colorMarca="#b97650" />
+      </div>
+      @if (featuresNotice()) {
+        <p class="inline-note" role="status">{{ featuresNotice() }}</p>
+      }
+    </section>
+
+    @if (loading()) {
+      <p class="muted-status">Cargando personajes…</p>
+    } @else if (error() && !characters().length) {
+      <p class="inline-error" role="alert">{{ error() }}</p>
+    } @else {
+      <div class="characters__grid">
+        @for (character of characters(); track character.id) {
+          <app-ficha-personaje
+            [personaje]="vistaPersonaje(character)"
+            [puedeAprobar]="puedeAprobar(character)"
+            [puedeEditar]="puedeEditar(character)"
+            [puedeEliminar]="puedeEditar(character)"
+            (aprobar)="aprobar($event)"
+            (rechazar)="rechazar($event)"
+            (editar)="editar($event)"
+            (eliminar)="eliminar($event)"
+          />
+        } @empty {
+          <p class="inline-note">Todavía no hay personajes en esta comunidad.</p>
+        }
+      </div>
+    }
+
+    <section class="surface characters__form no-print">
+      <h2>{{ editingId() ? 'Editar personaje' : 'Nuevo personaje' }}</h2>
+      <form [formGroup]="ficha" (ngSubmit)="guardar()" aria-live="polite">
+        <label for="pj-nombre">Nombre</label>
+        <input id="pj-nombre" type="text" formControlName="nombre" aria-describedby="pj-nombre-estado" [attr.aria-invalid]="ficha.controls.nombre.invalid && ficha.controls.nombre.touched" />
+        @if (ficha.controls.nombre.pending) { <p id="pj-nombre-estado" class="inline-note"><ion-spinner name="crescent" /> Comprobando…</p> }
+        @if (ficha.controls.nombre.hasError('characterName')) { <p id="pj-nombre-estado" class="inline-error">Ese nombre ya está en la comunidad.</p> }
+        @if (races().length) {
+          <label for="pj-raza">Raza</label>
+          <select id="pj-raza" formControlName="raceId" (change)="onRaceChange()">
+            <option value="">Elige una raza</option>
+            @for (race of races(); track race.id) {
+              <option [value]="race.id">{{ race.name }}</option>
+            }
+          </select>
+        }
+        <label for="pj-profesion">Profesión</label>
+        <input id="pj-profesion" type="text" formControlName="profesion" />
+        <label for="pj-edad">Edad</label>
+        <input id="pj-edad" type="number" min="0" max="999" formControlName="edad" />
+        <div class="characters__retrato">
+          <label class="characters__retrato-label" for="pj-retrato">Retrato (opcional)</label>
+          <input #retratoInput id="pj-retrato" class="characters__retrato-input" type="file" accept="image/png,image/jpeg,image/webp" (change)="onPortraitSelected($event)" />
+          <ion-button fill="outline" class="button-outline" type="button" (click)="abrirSelectorRetrato()">Elegir retrato</ion-button>
+          @if (retratoPreview() || retratoNombre()) {
+            <div class="characters__retrato-preview-row">
+              @if (retratoPreview()) {
+                <img class="characters__retrato-preview" [src]="retratoPreview()" alt="Vista previa del retrato" width="120" height="120" />
+              }
+              @if (retratoNombre()) {
+                <span class="characters__retrato-nombre">{{ retratoNombre() }}</span>
+              }
+            </div>
+          }
+        </div>
+        <label for="pj-aspecto">Aspecto</label>
+        <textarea id="pj-aspecto" rows="2" formControlName="aspecto"></textarea>
+        <label for="pj-historia">Historia</label>
+        <textarea id="pj-historia" rows="3" formControlName="historia"></textarea>
+        @if (selectedRace(); as race) {
+          <fieldset>
+            <legend>Rasgos de la raza</legend>
+            @for (trait of race.traits; track trait) {
+              <label class="characters__trait">
+                <input type="checkbox" [checked]="rasgosMarcados().has(trait)" (change)="toggleRaceTrait(trait, $event)" />
+                {{ trait }}
+              </label>
+            }
+          </fieldset>
+        } @else {
+          <fieldset formArrayName="rasgos">
+            <legend>Rasgos (de 1 a 5)</legend>
+            @for (rasgo of rasgos.controls; track $index) {
+              <label [attr.for]="'pj-rasgo-' + $index">Rasgo {{ $index + 1 }}</label>
+              <input [id]="'pj-rasgo-' + $index" type="text" [formControlName]="$index" />
+              @if (rasgos.length > 1) {
+                <button type="button" class="characters__quitar-rasgo" (click)="removeRasgo($index)">Quitar rasgo</button>
+              }
+            }
+          </fieldset>
+          <ion-button fill="outline" type="button" (click)="addRasgo()" [disabled]="rasgos.length >= 5">Añadir rasgo</ion-button>
+        }
+        <ion-button class="button-primary" type="submit" [disabled]="saving() || ficha.pending || ficha.invalid">
+          {{ saving() ? 'Guardando…' : (editingId() ? 'Guardar cambios' : 'Enviar personaje') }}
+        </ion-button>
+        @if (editingId()) {
+          <button type="button" class="characters__cancelar" (click)="cancelar()">Cancelar edición</button>
+        }
+      </form>
+      @if (error()) { <p class="inline-error" role="alert">{{ error() }}</p> }
+      @if (message()) { <p class="inline-success" role="status">{{ message() }}</p> }
+    </section>
+  </main>
+</ion-content>

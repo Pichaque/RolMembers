@@ -1,0 +1,15 @@
+<section class="grafico surface">
+  <div class="grafico__cabecera">
+    <h3>{{ titulo() }}</h3>
+    <ion-button fill="outline" class="button-outline" type="button" (click)="tabla.set(!tabla())">
+      {{ tabla() ? 'Ver gráfico' : 'Ver como tabla' }}
+    </ion-button>
+  </div>
+  @if (tabla()) {
+    <app-tabla-datos class="grafico__tabla" [titulo]="titulo()" [columnas]="columnas()" [filas]="filas()" />
+  } @else {
+    <div class="grafico__lienzo">
+      <canvas #lienzo role="img" [attr.aria-label]="descripcion()"></canvas>
+    </div>
+  }
+</section>

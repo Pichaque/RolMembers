@@ -1,0 +1,33 @@
+<label class="tabla-datos__buscar">Buscar
+  <input [value]="valor()" (input)="escribir($event)" type="search" />
+</label>
+<div class="tabla-datos__scroll">
+  <table class="tabla-datos">
+    <caption>{{ titulo() }}</caption>
+    <thead>
+      <tr>
+        @for (columna of columnas(); track columna.titulo; let index = $index) {
+          <th scope="col" [attr.aria-sort]="orden() === index ? direccion() : 'none'">
+            <button type="button" (click)="ordenar(index)">{{ columna.titulo }}</button>
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (fila of visibles(); track fila.id) {
+        <tr (click)="filaSeleccionada.emit(fila)">
+          @for (celda of fila.celdas; track $index) {
+            <td>{{ celda }}</td>
+          }
+        </tr>
+      } @empty {
+        <tr><td [attr.colspan]="columnas().length">No hay filas para mostrar.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="tabla-datos__paginas">
+  <button type="button" (click)="mover(-1)" [disabled]="pagina() === 0">Anterior</button>
+  <span>Página {{ pagina() + 1 }} de {{ paginas() }}</span>
+  <button type="button" (click)="mover(1)" [disabled]="pagina() + 1 >= paginas()">Siguiente</button>
+</div>

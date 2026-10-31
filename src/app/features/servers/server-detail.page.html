@@ -1,0 +1,37 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page detail-page">
+    @if (loading()) {
+      <p class="muted-status">Consultando la comunidad…</p>
+    } @else if (error()) {
+      <p class="inline-error" role="alert">{{ error() }}</p>
+      <ion-button routerLink="/servers" fill="outline">Volver a comunidades</ion-button>
+    } @else if (server(); as current) {
+      <header class="detail-header detail-header--panel">
+        <p class="eyebrow">DETALLE DE COMUNIDAD</p>
+        <h1 class="detail-header__title">{{ current.name }}</h1>
+        <div class="detail-header__description" [class.detail-header__description--clamped]="!descriptionExpanded()">
+          <p>{{ current.description || 'Sin descripción disponible.' }}</p>
+        </div>
+        @if (needsDescriptionToggle(current.description)) {
+          <button type="button" class="detail-header__toggle" (click)="toggleDescription()">
+            {{ descriptionExpanded() ? 'Ver menos' : 'Ver más' }}
+          </button>
+        }
+        <p class="role-line">Tu rol: {{ roleLabel(current.userRole) }}</p>
+        <div class="detail-header__actions">
+          <a class="detail-header__action" [routerLink]="['/servers', current.id, 'personajes']">
+            <ion-icon name="people-outline" aria-hidden="true" />
+            <span>Personajes</span>
+          </a>
+          <a class="detail-header__action" [routerLink]="['/servers', current.id, 'tablon']">
+            <ion-icon name="book-outline" aria-hidden="true" />
+            <span>Tablón</span>
+          </a>
+        </div>
+      </header>
+      <app-community-editor [server]="current" (changed)="onServerChange($event)" />
+      <app-community-roster [server]="current" [members]="members()" (changed)="reloadMembers()" />
+      <ion-button routerLink="/servers" fill="outline">Volver a comunidades</ion-button>
+    }
+  </main>
+</ion-content>

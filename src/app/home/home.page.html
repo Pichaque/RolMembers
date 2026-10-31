@@ -1,0 +1,35 @@
+<ion-content [fullscreen]="true">
+  <main class="landing page-wrap">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><ion-icon name="sparkles-outline" /> Tu próxima gran historia empieza aquí</p>
+        <h1>Las mejores aventuras se viven <em>en comunidad.</em></h1>
+        <p class="hero-lede">Organiza tus partidas, encuentra tu mesa y reúne a tus personajes en un solo lugar.</p>
+        <div class="hero-actions">
+          @if (auth.user()) {
+            <ion-button routerLink="/dashboard" class="button-primary">Ir a mi espacio <ion-icon slot="end" name="arrow-forward-outline" /></ion-button>
+            <ion-button routerLink="/servers" fill="outline" class="button-outline">Comunidades</ion-button>
+            <ion-button routerLink="/calendar" fill="clear" class="button-quiet">Calendario</ion-button>
+          } @else {
+            <ion-button routerLink="/register" class="button-primary">Crear mi cuenta <ion-icon slot="end" name="arrow-forward-outline" /></ion-button>
+            <ion-button routerLink="/login" fill="clear" class="button-quiet">Ya tengo cuenta</ion-button>
+          }
+        </div>
+        <div class="hero-note"><span class="status-dot" aria-hidden="true"></span> Un refugio para narradores y roleadores</div>
+      </div>
+      <div class="hero-art" aria-label="Ilustración decorativa de un mapa de aventura">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <div class="art-sigil"><ion-icon name="compass-outline" /></div>
+        <span class="art-label label-top">CRÓNICAS · COMUNIDAD</span>
+        <span class="art-label label-bottom">REÚNE A TU GRUPO</span>
+        <span class="art-star star-one">✦</span><span class="art-star star-two">✧</span>
+      </div>
+    </section>
+    <section class="feature-row" aria-label="Funciones de Comunidad de Rol">
+      <article class="feature-item"><span class="feature-icon"><ion-icon name="people-outline" /></span><div><h2>Tu mesa, reunida</h2><p>Ten a mano tus comunidades y partidas.</p></div></article>
+      <article class="feature-item"><span class="feature-icon"><ion-icon name="book-outline" /></span><div><h2>Historias que continúan</h2><p>Un espacio para que cada campaña crezca.</p></div></article>
+      <article class="feature-item"><span class="feature-icon"><ion-icon name="game-controller-outline" /></span><div><h2>Hecho para jugar</h2><p>Menos organización, más aventura.</p></div></article>
+    </section>
+  </main>
+</ion-content>

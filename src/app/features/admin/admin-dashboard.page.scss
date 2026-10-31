@@ -1,0 +1,15 @@
+.admin-dashboard__filtros,
+.admin-dashboard__kpis {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.admin-dashboard__kpis {
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.admin-dashboard__filtros input,
+.admin-dashboard__filtros select {
+  min-height: 2.75rem;
+}

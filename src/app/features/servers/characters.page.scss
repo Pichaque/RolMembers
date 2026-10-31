@@ -1,0 +1,132 @@
+.characters__intro {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  padding: 1.5rem 1.75rem;
+}
+
+.characters__intro h1,
+.characters__intro .page-intro {
+  margin: 0;
+}
+
+.characters__intro .page-intro {
+  max-width: 40rem;
+}
+
+.characters__intro ion-button {
+  width: fit-content;
+  justify-self: start;
+  margin: 0;
+}
+
+.characters__export {
+  margin-top: 0.25rem;
+}
+
+.characters__retrato {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.characters__retrato-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.characters__retrato-preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.characters__retrato-nombre {
+  flex: 1 1 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-on-panel-muted, var(--color-muted));
+}
+
+.characters__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  margin: 1.25rem 0;
+}
+
+.characters__form {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+
+  form {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+  }
+
+  input:not([type="checkbox"]),
+  textarea,
+  select {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.625rem;
+    box-sizing: border-box;
+    min-height: 2.75rem;
+  }
+
+  fieldset {
+    margin: 0;
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  legend {
+    padding: 0 0.35rem;
+  }
+}
+
+.characters__trait {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+}
+
+.characters__retrato-preview {
+  width: 7.5rem;
+  height: 7.5rem;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+}
+
+.characters__cancelar,
+.characters__quitar-rasgo {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+}

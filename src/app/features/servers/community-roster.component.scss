@@ -1,0 +1,17 @@
+.detail-card { display: grid; gap: 0.75rem; align-content: start; margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 0.875rem; background: var(--color-panel); color: var(--color-on-panel); }
+.detail-card h2 { margin: 0; font: 500 1.4rem Georgia, serif; }
+.export-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; min-width: 33.75rem; border-collapse: collapse; }
+th, td { padding: 0.75rem 0.625rem; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
+th { color: var(--color-copper); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; }
+td { color: var(--color-on-panel); }
+.character-form { display: grid; gap: 0.75rem; max-width: 26.25rem; margin-top: 1.125rem; }
+.character-form label { display: block; }
+.character-form input { display: block; width: 100%; margin-top: 0.35rem; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: 0.625rem; box-sizing: border-box; }
+.character-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); margin-top: 1.25rem; }
+.roster__rol, .roster__expulsar { min-height: 2.75rem; padding: 0.4rem 0.85rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--field-bg); color: var(--color-on-panel); font: inherit; font-weight: 600; }
+.roster__expulsar { background: transparent; color: var(--color-copper); cursor: pointer; }
+.roster__expulsar:hover { background: color-mix(in srgb, var(--color-copper) 16%, transparent); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.empty-table { color: var(--color-on-panel-muted, var(--color-muted)); }

@@ -1,0 +1,32 @@
+<section class="tirador surface" aria-labelledby="tirador-titulo">
+  <h2 id="tirador-titulo">Tirar dados</h2>
+  <div class="tirador__caras" role="group" aria-label="Tipo de dado">
+    @for (opcion of opciones; track opcion) {
+      <button
+        type="button"
+        class="tirador__cara"
+        [class.tirador__cara--activa]="caras() === opcion"
+        [attr.aria-pressed]="caras() === opcion"
+        (click)="elegirCaras(opcion)"
+      >
+        d{{ opcion }}
+      </button>
+    }
+  </div>
+  <label class="tirador__label" for="dado-etiqueta">Etiqueta (opcional)</label>
+  <input id="dado-etiqueta" class="tirador__etiqueta" type="text" [value]="etiqueta()" (input)="etiquetar($event)" />
+  <div class="tirador__mesa">
+    <div class="tirador__dado" [class.tirador__dado--girando]="girando()" aria-hidden="true">
+      <span class="tirador__dado-cara">{{ resultado() ?? '?' }}</span>
+    </div>
+    <p class="tirador__anuncio" aria-live="assertive">{{ anuncio() }}</p>
+  </div>
+  <ion-button class="button-primary tirador__lanzar" type="button" (click)="lanzar()" [disabled]="girando()">Lanzar</ion-button>
+  <ul class="tirador__historial">
+    @for (item of historial(); track $index) {
+      <li>{{ item.label || 'Tirada' }}: {{ item.result }} (d{{ item.sides }})</li>
+    } @empty {
+      <li class="tirador__historial-vacio">Sin tiradas todavía.</li>
+    }
+  </ul>
+</section>

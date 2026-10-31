@@ -1,0 +1,120 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page calendar-page">
+    <p class="eyebrow"><ion-icon name="calendar-outline" /> CALENDARIO GLOBAL</p>
+    <h1>Cuándo se juega</h1>
+    <p class="page-intro">Los eventos de todas las comunidades, cada uno con el color de su mesa.</p>
+
+    <label class="no-print" for="filtro-comunidad">Filtrar por comunidad</label>
+    <select class="no-print" id="filtro-comunidad" [value]="comunidadFiltro()" (change)="filtrarComunidad($event)">
+      <option value="">Todas</option>
+      @for (server of comunidadesFiltro(); track server.id) {
+        <option [value]="server.id">{{ server.name }}</option>
+      }
+    </select>
+
+    <div class="view-toggle no-print" role="group" aria-label="Vista del calendario">
+      <button type="button" [class.active]="view() === 'month'" (click)="view.set('month')">Calendario</button>
+      <button type="button" [class.active]="view() === 'board'" (click)="view.set('board')">Tablón</button>
+    </div>
+
+    <div class="export-row no-print">
+      <app-exportar-informe titulo="Sesiones del filtro" [columnas]="['Comunidad', 'Título', 'Lugar', 'Inicio', 'Fin', 'Asisto', 'Quizá', 'No asisto']" [filas]="filasInforme()" colorMarca="#b97650" (exportado)="avisoExportacion($event)" />
+      <ion-button fill="outline" class="button-outline" (click)="printPdf()" [disabled]="!events().length">Imprimir o guardar PDF</ion-button>
+      <ion-button routerLink="/dashboard" fill="clear" class="button-quiet">Volver a mi espacio</ion-button>
+    </div>
+
+    @if (loading()) {
+      <p class="muted-status">Consultando el calendario…</p>
+    } @else if (error()) {
+      <p class="inline-error" role="alert">{{ error() }}</p>
+    }
+
+    @if (!loading() && !events().length && !error()) {
+      <div class="surface empty-state">
+        <h2>Todavía no hay sesiones en el calendario</h2>
+        <p>Cuando un narrador o un administrador publique un evento, aparecerá aquí para todas las cuentas.</p>
+      </div>
+    }
+
+    @if (view() === 'month') {
+      <app-calendario-mes [anio]="monthCursor().getFullYear()" [mes]="monthCursor().getMonth()" [eventos]="eventosMes()" (mesCambiado)="monthCursor.set($event)" (diaSeleccionado)="diaSeleccionado($event)" (eventoSeleccionado)="eventoSeleccionado($event)" />
+    } @else {
+      <app-tablon-eventos [notas]="notasTablon()" />
+    }
+
+    @if (diaActivo()) {
+      <section class="surface" aria-live="polite">
+        <h2>Sesiones del {{ etiquetaDia() }}</h2>
+        @for (event of eventosDelDia(); track event.id) {
+          <p>{{ event.serverName }} — {{ event.title }} ({{ event.place }})</p>
+        } @empty {
+          <p>Ese día no hay sesiones en el filtro actual.</p>
+        }
+      </section>
+    }
+
+    @if (view() === 'month' && visibles().length) {
+      <ul class="event-list">
+        @for (event of visibles(); track event.id) {
+          <li class="surface event-item">
+            <span class="event-swatch" [style.background]="event.color" role="img" [attr.aria-label]="'Color de ' + event.serverName"></span>
+            <div>
+              <p class="event-community">{{ event.serverName }}</p>
+              <h2>{{ event.title }}</h2>
+              <p>{{ formatWhen(event.startsAt) }} – {{ formatWhen(event.endsAt) }}</p>
+              <p>Lugar: {{ event.place }}</p>
+              @if (event.description) { <p>{{ event.description }}</p> }
+              @if (canAnswer(event)) {
+                <div class="attendance no-print" role="group" [attr.aria-label]="'Asistencia a ' + event.title">
+                  <span>Tu asistencia. Asisto {{ conteo(event.id).yes }}, Quizá {{ conteo(event.id).maybe }}, No asisto {{ conteo(event.id).no }}.</span>
+                  <button type="button" [attr.aria-pressed]="attendanceOf(event.id) === 'yes' ? 'true' : 'false'" (click)="chooseAttendance(event, 'yes')">Asisto</button>
+                  <button type="button" [attr.aria-pressed]="attendanceOf(event.id) === 'maybe' ? 'true' : 'false'" (click)="chooseAttendance(event, 'maybe')">Quizá</button>
+                  <button type="button" [attr.aria-pressed]="attendanceOf(event.id) === 'no' ? 'true' : 'false'" (click)="chooseAttendance(event, 'no')">No asisto</button>
+                </div>
+              }
+            </div>
+            @if (canManage(event)) {
+              <ion-button fill="clear" class="button-quiet no-print" (click)="editEvent(event)">Editar</ion-button>
+              <ion-button fill="clear" class="button-quiet no-print" (click)="removeEvent(event)">Eliminar</ion-button>
+            }
+          </li>
+        }
+      </ul>
+    }
+
+    @if (!loading() && schedulableServers().length) {
+      <section class="surface create-event no-print">
+        <p class="eyebrow">NUEVA SESIÓN</p>
+        <h2>Publicar un evento</h2>
+        <p>Puedes crearlo si eres narrador de esa comunidad o administrador global. El lugar no puede coincidir con otro evento a la misma hora.</p>
+        <form [formGroup]="eventForm" (ngSubmit)="createEvent()" aria-live="polite">
+        <label for="event-server">Comunidad</label>
+        <select id="event-server" formControlName="serverId">
+          @for (server of schedulableServers(); track server.id) {
+            <option [value]="server.id">{{ server.name }}</option>
+          }
+        </select>
+        <label for="event-title">Título</label>
+        <input id="event-title" type="text" formControlName="title" />
+        <label for="event-place">Lugar</label>
+        <input id="event-place" type="text" formControlName="place" aria-describedby="event-conflict" [attr.aria-invalid]="eventForm.hasError('eventConflict')" />
+        <label for="event-description">Descripción</label>
+        <textarea id="event-description" rows="3" formControlName="description"></textarea>
+        <label for="event-start">Inicio</label>
+        <input id="event-start" type="datetime-local" formControlName="startsAt" />
+        <label for="event-end">Fin</label>
+        <input id="event-end" type="datetime-local" formControlName="endsAt" />
+        @if (eventForm.pending) { <p class="inline-note"><ion-spinner name="crescent" /> Comprobando…</p> }
+        @if (eventForm.hasError('eventConflict')) { <p id="event-conflict" class="inline-error">Ese lugar ya tiene otro evento en ese horario.</p> }
+        <ion-button class="button-primary" type="submit" [disabled]="saving() || eventForm.pending || eventForm.invalid">
+          {{ saving() ? 'Publicando…' : (editingId() ? 'Guardar cambios' : 'Publicar evento') }}
+        </ion-button>
+        </form>
+        @if (formError()) { <p class="inline-error" role="alert">{{ formError() }}</p> }
+        @if (formSuccess()) { <p class="inline-success" role="status">{{ formSuccess() }}</p> }
+      </section>
+    } @else if (!loading() && !isAdmin()) {
+      <p class="inline-note no-print">Publicar eventos está reservado a los narradores de una comunidad y a los administradores.</p>
+    }
+  </main>
+</ion-content>

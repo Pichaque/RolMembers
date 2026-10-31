@@ -1,0 +1,28 @@
+@if (canManage()) {
+  <section class="community-races__card">
+    <h2 class="community-races__title">Razas de la mesa</h2>
+    <p class="community-races__intro">Define las razas y los rasgos que los roleadores podrán marcar al crear personajes.</p>
+    @if (notice()) { <p class="inline-note" role="status">{{ notice() }}</p> }
+    @if (error()) { <p class="inline-error" role="alert">{{ error() }}</p> }
+    <ul class="community-races__list">
+      @for (race of races(); track race.id) {
+        <li class="community-races__row">
+          <div class="community-races__row-copy">
+            <strong>{{ race.name }}</strong>
+            <span>{{ race.traits.join(', ') }}</span>
+          </div>
+          <ion-button fill="outline" class="button-outline" type="button" (click)="removeRace(race.id)" [disabled]="saving()">Borrar</ion-button>
+        </li>
+      } @empty {
+        <li class="community-races__empty">Todavía no hay razas definidas.</li>
+      }
+    </ul>
+    <form [formGroup]="draft" (ngSubmit)="createRace()" class="community-races__form">
+      <label class="community-races__label" for="race-name">Nombre de la raza</label>
+      <input id="race-name" class="community-races__field" type="text" maxlength="40" formControlName="name" />
+      <label class="community-races__label" for="race-traits">Rasgos (separados por comas)</label>
+      <textarea id="race-traits" class="community-races__field" rows="2" formControlName="traits" placeholder="Agilidad, Visión nocturna, …"></textarea>
+      <ion-button class="button-primary community-races__submit" type="submit" [disabled]="saving() || draft.invalid">Añadir raza</ion-button>
+    </form>
+  </section>
+}

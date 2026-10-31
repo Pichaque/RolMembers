@@ -1,0 +1,62 @@
+---
+description: Reglas, esquema y permisos del proyecto Comunidad de Rol (Ionic + Angular + Supabase)
+alwaysApply: true
+---
+
+# Comunidad de Rol - Reglas permanentes
+Proyecto de Desarrollo de Interfaces (0488, DAM2). Se corrige con rubrica: RA1 arquitectura y roles (20%),
+RA2 formularios declarativos (15%), RA3 componentes (15%), RA4 usabilidad y WCAG (15%), RA5 datos e informes (15%),
+RA6 documentacion (10%), RA7 Git y despliegue (10%). Todo lo que hagas debe poder defenderse frente a esa rubrica.
+
+## Codigo
+- Angular standalone, sin NgModules. Inyeccion con inject(). Estado con signals; ChangeDetectionStrategy.OnPush en TODOS los componentes.
+- Plantillas con @if / @for (con track) / @empty. Prohibido *ngIf y *ngFor.
+- Formularios con Reactive Forms (FormBuilder/FormGroup/FormArray) y validadores asincronos donde corresponda.
+- Los componentes NO llaman a Supabase: todo acceso a datos va en servicios/stores. Los componentes reutilizables son "tontos":
+  reciben datos con input() y emiten con output(), sin inyectar servicios de datos.
+- TypeScript estricto. Prohibido 'any'. Sin codigo muerto ni console.log en produccion.
+- Estilos SCSS con tokens y nomenclatura BEM (.bloque__elemento--modificador). Tamanos en rem.
+- Comentarios TSDoc (@param, @returns) en servicios, stores y componentes (los lee Compodoc).
+- Textos de interfaz en espanol. Commits convencionales (feat:, fix:, docs:, chore:, test:, ci:).
+- Cancelar suscripciones y canales Realtime al destruir (DestroyRef / takeUntilDestroyed / removeChannel).
+
+## Seguridad
+- La seguridad real son las politicas RLS de Supabase; ocultar botones NO es seguridad, pero hay que ocultarlos tambien.
+- NUNCA service_role ni claves secretas. No escribir claves, URLs privadas ni contrasenas en codigo, README ni commits.
+- No debilites RLS ni cambies la BD por tu cuenta: si hace falta SQL, escribelo en supabase/migrations/NNN_nombre.sql
+  y dile al alumno que lo ejecute. No asumas que esta aplicado.
+- Sanea CSV (prefijo ' si empieza por = + - @) y cualquier HTML de usuario.
+
+## Esquema de BD VIGENTE (fuente de verdad: supabase/migrations/*.sql del repositorio; si algo no coincide, manda el SQL)
+profiles(id, display_name, global_role 'admin'|'user', created_at)  -- sin email; select('id, display_name, global_role, created_at')
+servers(id, name unique, slug unique, description, theme jsonb, created_by, created_at)
+  theme = {primary, secondary, accent, background, surface, preset, backgroundStyle 'solid'|'tint'|'gradient'} (validado en BD)
+server_invites(server_id, code)  [lo leen admin y narrador de ese servidor]
+server_members(id, server_id, user_id, role 'narrator'|'player', created_at) unique(server_id,user_id)
+characters(id, server_id, owner_id, name, data jsonb, status 'pending'|'approved'|'rejected', created_at)
+events(id, server_id, title, place, description, starts_at, ends_at, created_by, created_at)  -- ends_at > starts_at
+event_attendance(id, event_id, server_id, user_id, status 'yes'|'maybe'|'no') unique(event_id,user_id)
+  -- el cliente envia server_id; un trigger comprueba que el evento pertenece a ese servidor
+doc_feed(id, server_id, author_id, kind, payload jsonb, created_at)   -- "NoSQL" simulado + Realtime. Los ANUNCIOS son kind='announcement'
+doc_dice(id, server_id, user_id, payload jsonb, created_at)           -- "NoSQL" simulado + Realtime
+NO existe tabla announcements. Sin claves foraneas (referencias blandas por uuid).
+RPC (parametros exactos): invite_code_valid({p_code}), join_server({p_code}) [entra como 'player'],
+create_community({p_name,p_slug,p_description,p_theme}), delete_community({p_server}), regenerate_invite_code({p_server}),
+character_name_available({p_server,p_name,p_exclude?}), event_conflict({p_place,p_start,p_end,p_exclude?}),
+admin_set_global_role({p_user,p_role}).  (p_exclude requiere la migracion 003.)
+Etiquetas de UI en espanol: global admin->Administrador; narrator->Narrador; player->Roleador;
+asistencia yes->Asisto, maybe->Quiza, no->No asisto; personaje pending->Pendiente, approved->Aprobado, rejected->Rechazado.
+
+## Roles y permisos (UNA sola fuente de verdad: core/permissions/permissions.ts)
+Global: admin | user.  Por comunidad: narrator (Narrador) | player (Roleador).  El creador de una comunidad es su narrador (maximo 3 por usuario no admin).
+- Ver servers y calendario: todos los autenticados. Ver personajes, anuncios, miembros, doc_*: miembros de esa comunidad y admin.
+- Crear comunidad: cualquier usuario (RPC create_community). Eliminar: admin o su creador (RPC delete_community).
+- Editar tema/descripcion, regenerar codigo, cambiar rol o expulsar miembros (salvo al creador): admin y narrador de esa comunidad.
+- Crear/editar/borrar eventos, publicar anuncios (doc_feed kind announcement) y aprobar o rechazar personajes: admin y narrador de esa comunidad.
+- Crear personaje propio, confirmar asistencia, tirar dados: cualquier miembro.
+- Dashboard de administracion y informes globales: solo admin. Informes de una comunidad: admin y su narrador.
+
+## Forma de trabajar
+- Trabaja por bloques. Al terminar cada uno: ng build (produccion), ng lint y tests; corrige; commit; informa y PARA.
+- No afirmes que algo pasa si no lo has ejecutado. No inventes datos ni simules operaciones terminadas.
+- No reescribas el historial de Git ni hagas force-push. No renombres ramas remotas sin confirmacion.

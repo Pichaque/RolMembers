@@ -1,0 +1,47 @@
+<ion-content>
+  <main class="page-wrap app-page admin-page">
+    <p class="eyebrow">ADMINISTRACIÓN</p>
+    <h1>Panel de administración</h1>
+    <p class="page-intro">Roles globales, indicadores e informes en una sola vista. Solo visible para administradores.</p>
+    <nav class="admin-page__nav" role="tablist" aria-label="Secciones de administración">
+      <ion-button
+        role="tab"
+        [attr.aria-selected]="seccion() === 'roles'"
+        [fill]="seccion() === 'roles' ? 'solid' : 'outline'"
+        [class.button-primary]="seccion() === 'roles'"
+        [class.button-outline]="seccion() !== 'roles'"
+        (click)="elegir('roles')"
+      >
+        Roles
+      </ion-button>
+      <ion-button
+        role="tab"
+        [attr.aria-selected]="seccion() === 'indicadores'"
+        [fill]="seccion() === 'indicadores' ? 'solid' : 'outline'"
+        [class.button-primary]="seccion() === 'indicadores'"
+        [class.button-outline]="seccion() !== 'indicadores'"
+        (click)="elegir('indicadores')"
+      >
+        Indicadores
+      </ion-button>
+      <ion-button
+        role="tab"
+        [attr.aria-selected]="seccion() === 'informes'"
+        [fill]="seccion() === 'informes' ? 'solid' : 'outline'"
+        [class.button-primary]="seccion() === 'informes'"
+        [class.button-outline]="seccion() !== 'informes'"
+        [attr.aria-pressed]="seccion() === 'informes'"
+        (click)="elegir('informes')"
+      >
+        Informes
+      </ion-button>
+    </nav>
+    @if (seccion() === 'roles') {
+      <app-admin-roles />
+    } @else if (seccion() === 'indicadores') {
+      <app-admin-analytics seccion="indicadores" />
+    } @else {
+      <app-admin-analytics seccion="informes" />
+    }
+  </main>
+</ion-content>

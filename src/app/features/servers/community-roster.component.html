@@ -1,0 +1,76 @@
+<section class="detail-card">
+  <h2>Miembros</h2>
+  <div class="export-row no-print">
+    <app-exportar-informe titulo="Miembros" [columnas]="['Usuario', 'Rol', 'Personajes']" [filas]="filas()" (exportado)="success.set('Informe descargado: ' + $event)" />
+    <ion-button fill="outline" class="button-outline" (click)="print()">Imprimir o guardar PDF</ion-button>
+  </div>
+  @if (error()) { <p class="inline-error" role="alert">{{ error() }}</p> }
+  @if (members().length) {
+    <div class="table-wrap" role="region" aria-label="Miembros de la comunidad" tabindex="0">
+      <table>
+        <caption class="visually-hidden">Miembros de {{ server().name }}</caption>
+        <thead>
+          <tr><th scope="col">Usuario</th><th scope="col">Rol</th><th scope="col">Acciones</th></tr>
+        </thead>
+        <tbody>
+          @for (member of members(); track member.userId) {
+            <tr>
+              <td>{{ member.displayName }}</td>
+              <td>
+                @if (canManage(member)) {
+                  <select class="roster__rol" [value]="member.role" (change)="changeRole(member, $event)" [attr.aria-label]="'Rol de ' + member.displayName">
+                    <option value="narrator">Narrador</option>
+                    <option value="player">Roleador</option>
+                  </select>
+                } @else {
+                  {{ roleLabel(member.role) }}
+                }
+              </td>
+              <td>
+                @if (canManage(member)) {
+                  <button type="button" class="roster__expulsar no-print" (click)="remove(member)">Expulsar</button>
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="empty-table">No hay miembros visibles en esta comunidad.</p>
+  }
+
+  @if (personajesEnComunidad().length) {
+    <h3 class="visually-hidden">Personajes de la comunidad</h3>
+    <div class="character-grid">
+      @for (entry of personajesEnComunidad(); track entry.character.id) {
+        <app-ficha-personaje
+          [personaje]="{
+            id: entry.character.id,
+            nombre: entry.character.name,
+            estado: statusLabel(entry.character.status),
+            profesion: entry.character.profesion,
+            rasgos: entry.character.rasgos
+          }"
+          [puedeAprobar]="store.can('aprobar-personaje') && entry.character.status === 'pending'"
+          [puedeEditar]="false"
+          [puedeEliminar]="false"
+          (aprobar)="setStatus($event, 'approved')"
+          (rechazar)="setStatus($event, 'rejected')"
+        />
+      }
+    </div>
+  }
+
+  <form class="character-form no-print" *appPuede="'crear-personaje'" (submit)="$event.preventDefault(); createCharacter()">
+    <h3>Nuevo personaje</h3>
+    <label for="character-name">Nombre</label>
+    <input id="character-name" type="text" maxlength="80" [formControl]="characterName" aria-describedby="character-name-error" [attr.aria-invalid]="characterName.invalid && characterName.touched" />
+    @if (characterName.pending) { <p class="inline-note"><ion-spinner name="crescent" /> Comprobando…</p> }
+    @if (characterName.hasError('characterName')) { <p id="character-name-error" class="inline-error">Ese nombre ya existe en la comunidad.</p> }
+    <ion-button class="button-primary" type="submit" [disabled]="saving() || characterName.pending || characterName.invalid">Crear personaje</ion-button>
+    @if (success()) { <p class="inline-success" role="status">{{ success() }}</p> }
+  </form>
+</section>

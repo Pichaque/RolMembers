@@ -1,0 +1,18 @@
+<section class="surface admin-roles">
+  <h2>Roles globales</h2>
+  <p class="admin-roles__intro">Solo un administrador puede cambiarlos. Si te quitas este rol, dejarás de poder crear comunidades.</p>
+  @if (roleError()) { <p class="inline-error" role="alert">{{ roleError() }}</p> }
+  @if (roleSuccess()) { <p class="inline-success" role="status">{{ roleSuccess() }}</p> }
+  <ul class="admin-roles__list">
+    @for (account of accounts(); track account.id) {
+      <li class="admin-roles__row">
+        <span class="admin-roles__nombre">{{ etiquetaCuenta(account) }}</span>
+        <label class="visually-hidden" [attr.for]="'global-role-' + account.id">Rol global de {{ etiquetaCuenta(account) }}</label>
+        <select class="admin-roles__select" [id]="'global-role-' + account.id" [value]="account.global_role" (change)="changeGlobalRole(account, $event)">
+          <option value="admin">Administrador</option>
+          <option value="user">Usuario</option>
+        </select>
+      </li>
+    }
+  </ul>
+</section>

@@ -1,0 +1,41 @@
+<form class="admin-analytics__filtros">
+  <label for="filtro-comunidad">Comunidad</label>
+  <select id="filtro-comunidad" [ngModel]="comunidad()" (ngModelChange)="comunidad.set($event)" name="comunidad">
+    <option value="">Todas</option>
+    @for (server of servidores(); track server.id) {
+      <option [value]="server.id">{{ server.name }}</option>
+    }
+  </select>
+  <label for="filtro-desde">Desde</label>
+  <input id="filtro-desde" type="date" [ngModel]="desde()" (ngModelChange)="desde.set($event)" name="desde" />
+  <label for="filtro-hasta">Hasta</label>
+  <input id="filtro-hasta" type="date" [ngModel]="hasta()" (ngModelChange)="hasta.set($event)" name="hasta" />
+</form>
+
+@if (loading()) {
+  <p class="muted-status"><ion-spinner name="crescent" /> Cargando datos…</p>
+} @else if (error()) {
+  <p class="inline-error" role="alert">{{ error() }}</p>
+  <ion-button (click)="load()">Reintentar</ion-button>
+} @else {
+  @if (seccion() === 'indicadores') {
+    <section class="admin-analytics__kpis" aria-label="Indicadores">
+      <app-widget-estadistica titulo="Comunidades" [valor]="vista().servidores.length" icono="people-outline" />
+      <app-widget-estadistica titulo="Personajes en el filtro" [valor]="vista().personajes" icono="person-outline" />
+      <app-widget-estadistica titulo="Sesiones en el filtro" [valor]="vista().sesiones" icono="calendar-outline" />
+      <app-widget-estadistica titulo="Noticias del tablón" [valor]="feedTotal()" icono="megaphone-outline" variacion="Total visible, sin el filtro de fechas" />
+      <app-widget-estadistica titulo="Tiradas de dados" [valor]="diceTotal()" icono="dice-outline" variacion="Total visible, sin el filtro de fechas" />
+    </section>
+    @if (!vista().etiquetas.length) {
+      <p class="inline-note">No hay comunidades en este filtro, así que los gráficos no tienen categorías.</p>
+    }
+    <app-grafico titulo="Personajes por comunidad" tipo="bar" [etiquetas]="vista().etiquetas" [series]="[{ nombre: 'Personajes', valores: vista().porComunidad }]" />
+    <app-grafico titulo="Sesiones por mes" tipo="bar" [etiquetas]="vista().meses" [series]="[{ nombre: 'Sesiones', valores: vista().porMes }]" />
+    <app-grafico titulo="Usuarios por rol" tipo="pie" [etiquetas]="['Administrador', 'Narrador', 'Roleador']" [series]="[{ nombre: 'Personas', valores: vista().roles }]" />
+    <app-grafico titulo="Asistencia por comunidad" tipo="bar" [etiquetas]="vista().etiquetas" [series]="[{ nombre: 'Asisto', valores: vista().asistenciaYes }, { nombre: 'Quizá', valores: vista().asistenciaMaybe }, { nombre: 'No asisto', valores: vista().asistenciaNo }]" />
+  } @else {
+    <p class="page-intro">Filtra por comunidad y fechas, luego descarga el resumen en CSV o PDF.</p>
+    <app-exportar-informe titulo="Resumen del panel" colorMarca="#b97650" [columnas]="['Comunidad', 'Personajes', 'Sesiones', 'Asisto']" [filas]="vista().filas" (exportado)="exportado.set($event)" />
+    @if (exportado()) { <p class="inline-success" role="status">Descargado: {{ exportado() }}</p> }
+  }
+}

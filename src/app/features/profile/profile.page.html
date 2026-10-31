@@ -1,0 +1,20 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page profile-page">
+    <p class="eyebrow"><ion-icon name="shield-checkmark-outline" /> CUENTA PERSONAL</p>
+    <h1>Tu perfil</h1>
+    <p class="page-intro">Información disponible para tu sesión actual.</p>
+    <section class="surface profile-details">
+      <div class="detail-row"><span>Correo electrónico</span><strong>{{ auth.user()?.email || 'No disponible' }}</strong></div>
+      <div class="detail-row"><span>Nombre visible</span><strong>{{ profile()?.display_name?.trim() || 'Sin nombre en el perfil' }}</strong></div>
+      <div class="detail-row"><span>ID de usuario</span><strong class="user-id">{{ auth.user()?.id }}</strong></div>
+      <div class="detail-row">
+        <span>Rol global</span>
+        @if (loading()) { <strong>Consultando…</strong> }
+        @else if (profile()) { <strong>{{ profile()?.global_role === 'admin' ? 'Administrador' : 'Usuario' }}</strong> }
+        @else if (!error()) { <strong>Sin perfil asociado</strong> }
+      </div>
+      @if (error()) { <p class="inline-error" role="alert">{{ error() }}</p> }
+      @if (!loading() && !profile() && !error()) { <p class="muted-status">El trigger de Supabase debería crear el perfil al registrar la cuenta.</p> }
+    </section>
+  </main>
+</ion-content>

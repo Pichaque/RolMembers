@@ -1,0 +1,122 @@
+<ion-content [fullscreen]="true">
+  <main class="page-wrap app-page servers-page">
+    <p class="eyebrow"><ion-icon name="people-outline" /> TU GENTE, TUS HISTORIAS</p>
+    <h1>Comunidades</h1>
+    <p class="page-intro">Encuentra aquí las mesas y campañas a las que perteneces.</p>
+
+    @if (error()) {
+      <p class="inline-error" role="alert">{{ error() }}</p>
+    }
+    @if (creationPermissionError()) {
+      <p class="inline-note" role="status">{{ creationPermissionError() }}</p>
+    }
+
+    <section class="community-content">
+      <div class="surface list-panel">
+        @if (loading()) {
+          <p class="muted-status">Consultando comunidades…</p>
+        } @else if (servers().length) {
+          <div class="server-list-header">
+            <h2>Mis comunidades</h2>
+            <app-buscador [(valor)]="filtro" />
+            <ion-button routerLink="/dashboard" fill="clear" class="button-quiet">Volver al dashboard</ion-button>
+          </div>
+          <ul class="server-list">
+            @for (server of servers(); track server.id) {
+              @if (matches(server)) {
+              <li class="server-item">
+                <div>
+                  <span class="server-color" [style.background]="serverThemeStyle(server.theme)" role="img" [attr.aria-label]="'Colores del tema ' + server.name"></span>
+                  <span class="server-role">{{ roleLabel(server.userRole) }}</span>
+                  <h3>{{ server.name }}</h3>
+                  <p>{{ server.description || 'Sin descripción disponible.' }}</p>
+                </div>
+                <div class="server-meta">
+                  <ion-button routerLink="/servers/{{ server.id }}" fill="outline" class="button-outline">Abrir</ion-button>
+                </div>
+              </li>
+              }
+            }
+          </ul>
+        } @else {
+          <div class="server-empty">
+            <span class="empty-symbol"><ion-icon name="compass-outline" /></span>
+            <h2>Aún no hay comunidades que mostrar</h2>
+            <p>Cuando pertenezcas a una comunidad, aparecerá aquí con tu rol y su tema.</p>
+          </div>
+        }
+      </div>
+
+      <aside class="surface invite-panel">
+        <p class="eyebrow">¿TIENES UNA INVITACIÓN?</p>
+        <h2>Únete a una mesa</h2>
+        <p>Introduce el código que te haya dado un administrador. Si es válido, entrarás como jugador.</p>
+        <label for="invite-code">Código de invitación</label>
+        <input id="invite-code" type="text" [formControl]="invite" placeholder="Introduce tu código" aria-describedby="invite-help invite-status" [attr.aria-invalid]="invite.invalid && invite.touched" [disabled]="inviteLoading()" />
+        @if (invite.pending) { <p class="inline-note"><ion-spinner name="crescent" /> Comprobando…</p> }
+        @if (invite.touched && invite.hasError('inviteCode')) { <p id="invite-status" class="inline-error">Ese código no es válido.</p> }
+        <ion-button expand="block" class="button-primary" (click)="joinServer()" [disabled]="inviteLoading() || invite.pending || invite.invalid">
+          {{ inviteLoading() || invite.pending ? 'Comprobando código…' : 'Unirme a una comunidad' }}
+        </ion-button>
+        <small id="invite-help">El código se comprueba en Supabase. Si ya perteneces a esa comunidad, no se duplica tu membresía.</small>
+        @if (inviteStatus()) {
+          <p class="invite-status" [class.inline-error]="inviteIsError()" [attr.role]="inviteIsError() ? 'alert' : 'status'">{{ inviteStatus() }}</p>
+        }
+      </aside>
+    </section>
+
+    <section class="surface create-panel">
+      <div class="section-heading">
+        <p class="eyebrow">CREAR COMUNIDAD</p>
+        <h2>Preparar una nueva mesa</h2>
+        <p>Cualquier cuenta puede crear comunidades y queda como narrador. Si no eres administrador, el límite es 3. Llevas {{ createdCount() }}.</p>
+      </div>
+
+      <form class="create-form" [formGroup]="creation" (ngSubmit)="createCommunity()" aria-live="polite">
+        <label for="creation-name">Nombre <span>*</span></label>
+        <input id="creation-name" type="text" maxlength="50" formControlName="name" placeholder="Nombre de la comunidad" aria-describedby="creation-name-error" [attr.aria-invalid]="creation.controls.name.invalid && creation.controls.name.touched" />
+        @if (creation.controls.name.pending) { <p class="inline-note"><ion-spinner name="crescent" /> Comprobando…</p> }
+        @if (creation.controls.name.touched && creation.controls.name.hasError('slug')) { <p id="creation-name-error" class="inline-error">El identificador solo puede usar letras, números y guiones.</p> }
+        @if (creation.controls.name.touched && creation.controls.name.hasError('slugTaken')) { <p id="creation-name-error" class="inline-error">Ya existe una comunidad con ese identificador.</p> }
+
+        <label for="creation-description">Descripción</label>
+        <textarea id="creation-description" rows="3" maxlength="500" formControlName="description" placeholder="Descripción breve de la comunidad"></textarea>
+
+        <label>Tema</label>
+        <div class="palette-row">
+          @for (preset of presets; track preset.preset) {
+            <button type="button" class="palette-chip" (click)="applyPreset(preset)">
+              <span class="chip-swatch" [style.background]="'linear-gradient(135deg, ' + preset.primary + ', ' + preset.secondary + ')'"></span>
+              {{ preset.preset }}
+            </button>
+          }
+        </div>
+        <div class="color-fields">
+          <label>Principal<input type="color" formControlName="primary" /></label>
+          <label>Secundario<input type="color" formControlName="secondary" /></label>
+          <label>Acento<input type="color" formControlName="accent" /></label>
+          <label>Fondo de la página<input type="color" formControlName="background" /></label>
+          <label>Tinte de las tarjetas claras<input type="color" formControlName="surface" /></label>
+        </div>
+        <label for="creation-style">Estilo del fondo</label>
+        <select id="creation-style" formControlName="backgroundStyle">
+          <option value="tint">Tinte</option>
+          <option value="solid">Sólido</option>
+          <option value="gradient">Degradado</option>
+        </select>
+
+        <div class="theme-preview" [ngStyle]="themePreviewStyle()">
+          <span>Vista previa de la comunidad</span>
+        </div>
+
+        <ion-button expand="block" class="button-primary" type="submit" [disabled]="creation.pending || creation.invalid">Guardar comunidad</ion-button>
+        @if (creationError()) {
+          <p class="inline-error" role="alert">{{ creationError() }}</p>
+        }
+        @if (creationSuccess()) {
+          <p class="inline-success" role="status">{{ creationSuccess() }}</p>
+        }
+      </form>
+    </section>
+  </main>
+</ion-content>

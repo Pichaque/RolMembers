@@ -1,0 +1,59 @@
+.detail-page { max-width: 920px; padding-top: 90px; }
+.detail-header--panel {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.875rem;
+  background: var(--color-panel);
+  color: var(--color-on-panel);
+}
+.detail-header__title {
+  margin: 0.875rem 0;
+  overflow-wrap: anywhere;
+  font: 500 clamp(2.2rem, 5vw, 3.5rem) Georgia, serif;
+  color: var(--color-on-panel);
+}
+.detail-header__description p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-on-panel-muted, var(--color-on-panel));
+  line-height: 1.8;
+}
+.detail-header__description--clamped p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
+  overflow: hidden;
+}
+.detail-header__toggle {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-on-panel);
+  background: transparent;
+  cursor: pointer;
+  min-height: 2.75rem;
+}
+.detail-header .eyebrow { color: var(--color-on-panel-muted, var(--color-copper)); }
+.detail-header .role-line { color: var(--color-copper); font-weight: 700; }
+.detail-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.detail-header__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  color: var(--color-on-panel);
+  text-decoration: none;
+  background: var(--field-bg, rgba(0, 0, 0, 0.12));
+}
+.detail-header__action ion-icon { font-size: 1.25rem; }
+@media (max-width: 520px) { .detail-page { padding-top: 70px; } .detail-header--panel { padding: 1.125rem 0.875rem; } }
